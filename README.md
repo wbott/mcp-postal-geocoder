@@ -1,3 +1,14 @@
+---
+title: MCP Postal Geocoder
+emoji: 📍
+colorFrom: blue
+colorTo: green
+sdk: streamlit
+sdk_version: "1.28.0"
+app_file: streamlit_app.py
+pinned: false
+---
+
 # MCP Postal Geocoder
 
 **Model Context Protocol (MCP) Server for US Postal Code Geocoding**
@@ -15,7 +26,7 @@ Fast, accurate, and comprehensive with 33,791 US postal codes.
 
 ## 🚀 Demo
 
-Try the live demo: [**MCP Postal Geocoder on HuggingFace Spaces**](https://huggingface.co/spaces/your-username/mcp-postal-geocoder)
+Try the live demo: [**MCP Postal Geocoder on HuggingFace Spaces**](https://huggingface.co/spaces/bott-wa/mcp-postal-geocoder)
 
 ### Features in Demo:
 - **📊 Database Statistics** - Real-time stats on 33,791 postal codes
