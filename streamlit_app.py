@@ -35,40 +35,35 @@ def get_python_command() -> str:
     """Get the appropriate Python command for the current platform."""
     return "python" if platform.system() == "Windows" else "python3"
 
+@st.cache_data
 def get_server_command() -> tuple:
-    """Get the appropriate server command for the current environment."""
+    """Get the appropriate MCP server command for the current environment.
+    
+    This function automatically detects the deployment environment and chooses
+    the best way to run the MCP server:
+    1. Bootstrap script (for containerized environments like Hugging Face Spaces)
+    2. Installed package module (for local development)
+    3. Direct file execution (fallback)
+    """
     import os
-    import sys
     
-    print("=== STREAMLIT: Getting server command ===")
-    print(f"Current working directory: {os.getcwd()}")
-    print(f"__file__: {__file__}")
-    
-    # For now, always try bootstrap script first to debug
+    # Strategy 1: Try bootstrap script (best for containerized environments)
     bootstrap_script = os.path.join(os.path.dirname(__file__), "run_mcp_server.py")
-    print(f"Bootstrap script path: {bootstrap_script}")
-    print(f"Bootstrap script exists: {os.path.exists(bootstrap_script)}")
-    
     if os.path.exists(bootstrap_script):
-        print("Using bootstrap script")
         return (get_python_command(), [bootstrap_script])
     
-    # Check if we're in a development environment (package installed)
+    # Strategy 2: Try installed package (local development)
     try:
         import mcp_postal_geocoder
-        print("Package installed, using module syntax")
         return (get_python_command(), ["-m", "mcp_postal_geocoder.server.mcp_server"])
     except ImportError:
-        # Fallback to direct file path
+        # Strategy 3: Direct file execution (fallback)
         server_file = os.path.join("src", "mcp_postal_geocoder", "server", "mcp_server.py")
-        print(f"Using direct file path: {server_file}")
         return (get_python_command(), [server_file])
 
 async def call_mcp_tool(tool_name: str, tool_args: Dict[str, Any]) -> Dict[str, Any]:
     """Call an MCP tool and return the result."""
     command, args = get_server_command()
-    print(f"=== STREAMLIT: Executing command: {command} {' '.join(args)} ===")
-    
     server_params = StdioServerParameters(
         command=command,
         args=args

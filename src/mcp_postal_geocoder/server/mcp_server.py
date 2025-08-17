@@ -1,93 +1,64 @@
 """MCP server implementation for postal code geocoding using FastMCP."""
 
-print("=== MCP SERVER STARTING WITH DEBUG ===")
 import sys
 import os
+import logging
 from typing import List, Dict, Any, Optional
 from mcp.server.fastmcp import FastMCP
 
-# Debug: Print environment info
-print(f"DEBUG: Python executable: {sys.executable}")
-print(f"DEBUG: Current working directory: {os.getcwd()}")
-print(f"DEBUG: __file__: {__file__}")
-print(f"DEBUG: sys.path: {sys.path}")
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-# Handle imports for both installed package and direct execution
+# Multi-environment import strategy for maximum compatibility
+# This handles: installed packages, direct execution, container deployments, etc.
 try:
-    # Try absolute imports first (when package is installed)
-    print("DEBUG: Attempting absolute imports...")
+    # Strategy 1: Standard package imports (development with installed package)
     from mcp_postal_geocoder.server.database.connection import DatabaseConnection
     from mcp_postal_geocoder.server.database.queries import PostalQueries
     from mcp_postal_geocoder.server.database.models import PostalSearchInput, ReverseGeocodeInput
-    print("DEBUG: Absolute imports successful!")
-except ImportError as e:
-    print(f"DEBUG: Absolute imports failed: {e}")
-    
-    # Calculate paths
+    logger.info("Using installed package imports")
+except ImportError:
+    # Strategy 2: Add source directory to path and retry
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    print(f"DEBUG: current_dir: {current_dir}")
-    
-    # Go up: mcp_server.py -> server -> mcp_postal_geocoder -> src -> project_root
     src_dir = os.path.dirname(os.path.dirname(os.path.dirname(current_dir)))
-    print(f"DEBUG: calculated src_dir: {src_dir}")
-    print(f"DEBUG: src_dir exists: {os.path.exists(src_dir)}")
     
-    # List contents of src_dir
-    if os.path.exists(src_dir):
-        print(f"DEBUG: Contents of src_dir: {os.listdir(src_dir)}")
-    
-    # Add src to path
-    if src_dir not in sys.path:
+    if os.path.exists(src_dir) and src_dir not in sys.path:
         sys.path.insert(0, src_dir)
-        print(f"DEBUG: Added {src_dir} to sys.path")
     
-    print(f"DEBUG: Updated sys.path: {sys.path}")
-    
-    # Try imports again
     try:
-        print("DEBUG: Attempting imports after path modification...")
         from mcp_postal_geocoder.server.database.connection import DatabaseConnection
         from mcp_postal_geocoder.server.database.queries import PostalQueries
         from mcp_postal_geocoder.server.database.models import PostalSearchInput, ReverseGeocodeInput
-        print("DEBUG: Imports successful after path modification!")
-    except ImportError as e2:
-        print(f"DEBUG: Imports still failed: {e2}")
+        logger.info("Using path-modified imports")
+    except ImportError:
+        # Strategy 3: Direct file imports (for containerized environments)
+        logger.info("Falling back to direct file imports")
+        import importlib.util
         
-        # Last resort: import modules directly from file paths
-        print("DEBUG: Attempting direct file imports...")
-        try:
-            import importlib.util
-            
-            # Import connection module
-            connection_path = os.path.join(current_dir, "database", "connection.py")
-            print(f"DEBUG: connection_path: {connection_path}")
-            spec = importlib.util.spec_from_file_location("connection", connection_path)
-            connection_module = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(connection_module)
-            DatabaseConnection = connection_module.DatabaseConnection
-            
-            # Import queries module  
-            queries_path = os.path.join(current_dir, "database", "queries.py")
-            print(f"DEBUG: queries_path: {queries_path}")
-            spec = importlib.util.spec_from_file_location("queries", queries_path)
-            queries_module = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(queries_module)
-            PostalQueries = queries_module.PostalQueries
-            
-            # Import models module
-            models_path = os.path.join(current_dir, "database", "models.py")
-            print(f"DEBUG: models_path: {models_path}")
-            spec = importlib.util.spec_from_file_location("models", models_path)
-            models_module = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(models_module)
-            PostalSearchInput = models_module.PostalSearchInput
-            ReverseGeocodeInput = models_module.ReverseGeocodeInput
-            
-            print("DEBUG: Direct file imports successful!")
-            
-        except Exception as e3:
-            print(f"DEBUG: Direct file imports also failed: {e3}")
-            raise e3
+        # Import connection module
+        connection_path = os.path.join(current_dir, "database", "connection.py")
+        spec = importlib.util.spec_from_file_location("connection", connection_path)
+        connection_module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(connection_module)
+        DatabaseConnection = connection_module.DatabaseConnection
+        
+        # Import queries module  
+        queries_path = os.path.join(current_dir, "database", "queries.py")
+        spec = importlib.util.spec_from_file_location("queries", queries_path)
+        queries_module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(queries_module)
+        PostalQueries = queries_module.PostalQueries
+        
+        # Import models module
+        models_path = os.path.join(current_dir, "database", "models.py")
+        spec = importlib.util.spec_from_file_location("models", models_path)
+        models_module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(models_module)
+        PostalSearchInput = models_module.PostalSearchInput
+        ReverseGeocodeInput = models_module.ReverseGeocodeInput
+        
+        logger.info("Direct file imports successful")
 
 # Create MCP server
 mcp = FastMCP("postal-geocoder")
@@ -251,7 +222,7 @@ def main() -> None:
     db_conn = DatabaseConnection()
     db_conn.connect()
     
-    print("Starting MCP Postal Geocoder Server...")
+    logger.info("Starting MCP Postal Geocoder Server...")
     mcp.run()
 
 if __name__ == "__main__":

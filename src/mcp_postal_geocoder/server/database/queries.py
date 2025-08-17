@@ -6,17 +6,19 @@ import os
 import sys
 from typing import List, Optional, Dict, Any
 
-# Handle imports for both installed package and direct execution
+# Multi-environment import strategy for database modules
+# This ensures compatibility across different deployment scenarios
 try:
+    # Standard relative imports (preferred)
     from .connection import DatabaseConnection
     from .models import PostalCodeRecord, PostalSearchInput, ReverseGeocodeInput, row_to_postal_record
 except ImportError:
-    # If relative imports fail, try direct imports
     try:
+        # Absolute imports (when package is installed)
         from mcp_postal_geocoder.server.database.connection import DatabaseConnection
         from mcp_postal_geocoder.server.database.models import PostalCodeRecord, PostalSearchInput, ReverseGeocodeInput, row_to_postal_record
     except ImportError:
-        # Last resort: import directly from file paths
+        # Direct file imports (for containerized environments)
         import importlib.util
         current_dir = os.path.dirname(os.path.abspath(__file__))
         
