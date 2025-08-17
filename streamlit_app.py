@@ -35,11 +35,33 @@ def get_python_command() -> str:
     """Get the appropriate Python command for the current platform."""
     return "python" if platform.system() == "Windows" else "python3"
 
+@st.cache_data
+def get_server_command() -> tuple:
+    """Get the appropriate server command for the current environment."""
+    import os
+    import sys
+    
+    # Check if we're in a development environment (package installed)
+    try:
+        import mcp_postal_geocoder
+        # Package is installed, use module syntax
+        return (get_python_command(), ["-m", "mcp_postal_geocoder.server.mcp_server"])
+    except ImportError:
+        # Package not installed (like on Hugging Face), use direct file path
+        # Add src to Python path for imports
+        src_path = os.path.join(os.path.dirname(__file__), "src")
+        if src_path not in sys.path:
+            sys.path.insert(0, src_path)
+        
+        server_file = os.path.join("src", "mcp_postal_geocoder", "server", "mcp_server.py")
+        return (get_python_command(), [server_file])
+
 async def call_mcp_tool(tool_name: str, tool_args: Dict[str, Any]) -> Dict[str, Any]:
     """Call an MCP tool and return the result."""
+    command, args = get_server_command()
     server_params = StdioServerParameters(
-        command=get_python_command(),
-        args=["-m", "mcp_postal_geocoder.server.mcp_server"]
+        command=command,
+        args=args
     )
     
     try:
