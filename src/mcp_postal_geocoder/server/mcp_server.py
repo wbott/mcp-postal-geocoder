@@ -1,5 +1,6 @@
 """MCP server implementation for postal code geocoding using FastMCP."""
 
+print("=== MCP SERVER STARTING WITH DEBUG ===")
 import sys
 import os
 from typing import List, Dict, Any, Optional
