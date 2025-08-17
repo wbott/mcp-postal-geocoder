@@ -1,10 +1,26 @@
 """MCP server implementation for postal code geocoding using FastMCP."""
 
+import sys
+import os
 from typing import List, Dict, Any, Optional
 from mcp.server.fastmcp import FastMCP
-from mcp_postal_geocoder.server.database.connection import DatabaseConnection
-from mcp_postal_geocoder.server.database.queries import PostalQueries
-from mcp_postal_geocoder.server.database.models import PostalSearchInput, ReverseGeocodeInput
+
+# Handle imports for both installed package and direct execution
+try:
+    # Try absolute imports first (when package is installed)
+    from mcp_postal_geocoder.server.database.connection import DatabaseConnection
+    from mcp_postal_geocoder.server.database.queries import PostalQueries
+    from mcp_postal_geocoder.server.database.models import PostalSearchInput, ReverseGeocodeInput
+except ImportError:
+    # If absolute imports fail, add src to path and use relative imports
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    src_dir = os.path.dirname(os.path.dirname(os.path.dirname(current_dir)))
+    if src_dir not in sys.path:
+        sys.path.insert(0, src_dir)
+    
+    from mcp_postal_geocoder.server.database.connection import DatabaseConnection
+    from mcp_postal_geocoder.server.database.queries import PostalQueries
+    from mcp_postal_geocoder.server.database.models import PostalSearchInput, ReverseGeocodeInput
 
 # Create MCP server
 mcp = FastMCP("postal-geocoder")
