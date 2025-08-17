@@ -11,18 +11,21 @@ pinned: false
 
 # MCP Postal Geocoder
 
-**Model Context Protocol (MCP) Server for US Postal Code Geocoding**
+**Complete MCP Server & Client Implementation for US Postal Code Geocoding**
 
-A drop-in replacement for GeoNames postal code API using US Census Bureau ZIP Code Tabulation Areas (ZCTAs). 
+A full-featured Model Context Protocol implementation including both **MCP Server** (FastMCP backend) and **MCP Client** (Streamlit demo app).
+Provides a drop-in replacement for GeoNames postal code API using US Census Bureau ZIP Code Tabulation Areas (ZCTAs). 
 Fast, accurate, and comprehensive with 33,791 US postal codes.
 
 ## 🌟 Features
 
+- **Complete MCP Implementation**: Both server (5 tools) and client (Streamlit app) 
 - **5 MCP Tools**: Search, geocode, reverse geocode, validate, and statistics
 - **Census Accuracy**: Official US Census Bureau ZCTA data
 - **High Performance**: <1ms exact lookups, <50ms reverse geocoding
 - **Complete Coverage**: All 33,791 US postal codes with cities and states
-- **FastMCP Framework**: Modern, efficient MCP server implementation
+- **Reference Implementation**: Perfect example for building MCP clients
+- **Multi-Environment**: Works in development, containers, and cloud deployments
 
 ## 🚀 Demo
 

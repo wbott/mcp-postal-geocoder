@@ -24,9 +24,10 @@ st.set_page_config(
 # Title and description
 st.title("📮 MCP Postal Geocoder Demo")
 st.markdown("""
-**Model Context Protocol (MCP) Server for US Postal Code Geocoding**
+**Complete MCP Server & Client Implementation for US Postal Code Geocoding**
 
-This demo showcases a drop-in replacement for GeoNames postal code API using US Census Bureau ZIP Code Tabulation Areas (ZCTAs).
+This demo showcases both an **MCP Server** (providing postal code tools) and an **MCP Client** (this Streamlit app) working together.
+It's a drop-in replacement for GeoNames postal code API using US Census Bureau ZIP Code Tabulation Areas (ZCTAs).
 All data is sourced from official US Census Bureau records with 33,791 postal codes.
 """)
 
@@ -400,8 +401,9 @@ elif selected_tool == "✅ Validate Postal Code":
 st.markdown("---")
 st.markdown("""
 ### About This Demo
+- **Architecture**: Complete MCP implementation with both **Server** (FastMCP backend) and **Client** (this Streamlit app)
 - **Database**: 33,791 US postal codes from Census Bureau ZCTA data
-- **Technology**: Model Context Protocol (MCP) server with FastMCP
 - **Performance**: Sub-millisecond exact lookups, <50ms reverse geocoding
+- **Use Cases**: Reference implementation for MCP client development, production-ready postal API
 - **Source Code**: [GitHub Repository](https://github.com/wbott/mcp-postal-geocoder)
 """)
