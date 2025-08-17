@@ -47,14 +47,14 @@ def get_server_command() -> tuple:
         # Package is installed, use module syntax
         return (get_python_command(), ["-m", "mcp_postal_geocoder.server.mcp_server"])
     except ImportError:
-        # Package not installed (like on Hugging Face), use direct file path
-        # Add src to Python path for imports
-        src_path = os.path.join(os.path.dirname(__file__), "src")
-        if src_path not in sys.path:
-            sys.path.insert(0, src_path)
-        
-        server_file = os.path.join("src", "mcp_postal_geocoder", "server", "mcp_server.py")
-        return (get_python_command(), [server_file])
+        # Package not installed (like on Hugging Face), use bootstrap script
+        bootstrap_script = os.path.join(os.path.dirname(__file__), "run_mcp_server.py")
+        if os.path.exists(bootstrap_script):
+            return (get_python_command(), [bootstrap_script])
+        else:
+            # Fallback to direct file path
+            server_file = os.path.join("src", "mcp_postal_geocoder", "server", "mcp_server.py")
+            return (get_python_command(), [server_file])
 
 async def call_mcp_tool(tool_name: str, tool_args: Dict[str, Any]) -> Dict[str, Any]:
     """Call an MCP tool and return the result."""
