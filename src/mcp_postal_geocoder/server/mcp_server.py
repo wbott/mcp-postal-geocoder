@@ -53,15 +53,40 @@ except ImportError as e:
     except ImportError as e2:
         print(f"DEBUG: Imports still failed: {e2}")
         
-        # Last resort: try relative imports
-        print("DEBUG: Attempting relative imports...")
+        # Last resort: import modules directly from file paths
+        print("DEBUG: Attempting direct file imports...")
         try:
-            from .database.connection import DatabaseConnection
-            from .database.queries import PostalQueries
-            from .database.models import PostalSearchInput, ReverseGeocodeInput
-            print("DEBUG: Relative imports successful!")
-        except ImportError as e3:
-            print(f"DEBUG: Relative imports also failed: {e3}")
+            import importlib.util
+            
+            # Import connection module
+            connection_path = os.path.join(current_dir, "database", "connection.py")
+            print(f"DEBUG: connection_path: {connection_path}")
+            spec = importlib.util.spec_from_file_location("connection", connection_path)
+            connection_module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(connection_module)
+            DatabaseConnection = connection_module.DatabaseConnection
+            
+            # Import queries module  
+            queries_path = os.path.join(current_dir, "database", "queries.py")
+            print(f"DEBUG: queries_path: {queries_path}")
+            spec = importlib.util.spec_from_file_location("queries", queries_path)
+            queries_module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(queries_module)
+            PostalQueries = queries_module.PostalQueries
+            
+            # Import models module
+            models_path = os.path.join(current_dir, "database", "models.py")
+            print(f"DEBUG: models_path: {models_path}")
+            spec = importlib.util.spec_from_file_location("models", models_path)
+            models_module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(models_module)
+            PostalSearchInput = models_module.PostalSearchInput
+            ReverseGeocodeInput = models_module.ReverseGeocodeInput
+            
+            print("DEBUG: Direct file imports successful!")
+            
+        except Exception as e3:
+            print(f"DEBUG: Direct file imports also failed: {e3}")
             raise e3
 
 # Create MCP server
