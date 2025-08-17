@@ -5,22 +5,63 @@ import os
 from typing import List, Dict, Any, Optional
 from mcp.server.fastmcp import FastMCP
 
+# Debug: Print environment info
+print(f"DEBUG: Python executable: {sys.executable}")
+print(f"DEBUG: Current working directory: {os.getcwd()}")
+print(f"DEBUG: __file__: {__file__}")
+print(f"DEBUG: sys.path: {sys.path}")
+
 # Handle imports for both installed package and direct execution
 try:
     # Try absolute imports first (when package is installed)
+    print("DEBUG: Attempting absolute imports...")
     from mcp_postal_geocoder.server.database.connection import DatabaseConnection
     from mcp_postal_geocoder.server.database.queries import PostalQueries
     from mcp_postal_geocoder.server.database.models import PostalSearchInput, ReverseGeocodeInput
-except ImportError:
-    # If absolute imports fail, add src to path and use relative imports
+    print("DEBUG: Absolute imports successful!")
+except ImportError as e:
+    print(f"DEBUG: Absolute imports failed: {e}")
+    
+    # Calculate paths
     current_dir = os.path.dirname(os.path.abspath(__file__))
+    print(f"DEBUG: current_dir: {current_dir}")
+    
+    # Go up: mcp_server.py -> server -> mcp_postal_geocoder -> src -> project_root
     src_dir = os.path.dirname(os.path.dirname(os.path.dirname(current_dir)))
+    print(f"DEBUG: calculated src_dir: {src_dir}")
+    print(f"DEBUG: src_dir exists: {os.path.exists(src_dir)}")
+    
+    # List contents of src_dir
+    if os.path.exists(src_dir):
+        print(f"DEBUG: Contents of src_dir: {os.listdir(src_dir)}")
+    
+    # Add src to path
     if src_dir not in sys.path:
         sys.path.insert(0, src_dir)
+        print(f"DEBUG: Added {src_dir} to sys.path")
     
-    from mcp_postal_geocoder.server.database.connection import DatabaseConnection
-    from mcp_postal_geocoder.server.database.queries import PostalQueries
-    from mcp_postal_geocoder.server.database.models import PostalSearchInput, ReverseGeocodeInput
+    print(f"DEBUG: Updated sys.path: {sys.path}")
+    
+    # Try imports again
+    try:
+        print("DEBUG: Attempting imports after path modification...")
+        from mcp_postal_geocoder.server.database.connection import DatabaseConnection
+        from mcp_postal_geocoder.server.database.queries import PostalQueries
+        from mcp_postal_geocoder.server.database.models import PostalSearchInput, ReverseGeocodeInput
+        print("DEBUG: Imports successful after path modification!")
+    except ImportError as e2:
+        print(f"DEBUG: Imports still failed: {e2}")
+        
+        # Last resort: try relative imports
+        print("DEBUG: Attempting relative imports...")
+        try:
+            from .database.connection import DatabaseConnection
+            from .database.queries import PostalQueries
+            from .database.models import PostalSearchInput, ReverseGeocodeInput
+            print("DEBUG: Relative imports successful!")
+        except ImportError as e3:
+            print(f"DEBUG: Relative imports also failed: {e3}")
+            raise e3
 
 # Create MCP server
 mcp = FastMCP("postal-geocoder")
