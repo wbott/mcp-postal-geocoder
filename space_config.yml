@@ -1,0 +1,16 @@
+title: MCP Postal Geocoder Demo
+emoji: 📮
+colorFrom: blue
+colorTo: green
+sdk: streamlit
+sdk_version: 1.48.1
+app_file: streamlit_app.py
+pinned: false
+short_description: Model Context Protocol server for US postal code geocoding with interactive demo
+tags:
+  - mcp
+  - postal-codes
+  - geocoding
+  - census-data
+  - api
+  - demo

@@ -1,0 +1,63 @@
+# Virtual Environment
+venv/
+env/
+.env
+.venv
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Database
+*.db-journal
+
+# Temporary files
+*.tmp
+*.temp
+debug_windows.py
+test_streamlit_integration.py
+
+# Development scripts (keep main ones, exclude temp/test scripts)
+add_cities.py
+assign_all_cities.py
+fast_test_server.py
+final_city_assignment.py
+fix_cities_authoritative.py
+fix_cities_usps.py
+fix_city_precision.py
+populate_all_cities.py
+simple_test_server.py
+update_states.py

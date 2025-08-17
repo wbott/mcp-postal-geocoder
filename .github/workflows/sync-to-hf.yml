@@ -1,0 +1,42 @@
+name: Sync to Hugging Face Space
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  sync-to-hf:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+        lfs: true
+
+    - name: Push to Hugging Face Space
+      env:
+        HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      run: |
+        git config --global user.email "action@github.com"
+        git config --global user.name "GitHub Action"
+        
+        # Clone the HF Space (replace USERNAME/SPACENAME with your actual values)
+        git clone https://huggingface.co/spaces/USERNAME/mcp-postal-geocoder hf-space
+        cd hf-space
+        
+        # Configure HF authentication
+        git remote set-url origin https://USERNAME:$HF_TOKEN@huggingface.co/spaces/USERNAME/mcp-postal-geocoder
+        
+        # Copy files from the main repo
+        cp -r ../streamlit_app.py .
+        cp -r ../requirements.txt .
+        cp -r ../packages.txt .
+        cp -r ../src .
+        cp -r ../data .
+        cp -r ../README.md .
+        
+        # Commit and push
+        git add .
+        git commit -m "Sync from GitHub: $(date)"
+        git push origin main
