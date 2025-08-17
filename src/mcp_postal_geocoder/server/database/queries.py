@@ -2,9 +2,40 @@
 
 import sqlite3
 import math
+import os
+import sys
 from typing import List, Optional, Dict, Any
-from .connection import DatabaseConnection
-from .models import PostalCodeRecord, PostalSearchInput, ReverseGeocodeInput, row_to_postal_record
+
+# Handle imports for both installed package and direct execution
+try:
+    from .connection import DatabaseConnection
+    from .models import PostalCodeRecord, PostalSearchInput, ReverseGeocodeInput, row_to_postal_record
+except ImportError:
+    # If relative imports fail, try direct imports
+    try:
+        from mcp_postal_geocoder.server.database.connection import DatabaseConnection
+        from mcp_postal_geocoder.server.database.models import PostalCodeRecord, PostalSearchInput, ReverseGeocodeInput, row_to_postal_record
+    except ImportError:
+        # Last resort: import directly from file paths
+        import importlib.util
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        
+        # Import connection module
+        connection_path = os.path.join(current_dir, "connection.py")
+        spec = importlib.util.spec_from_file_location("connection", connection_path)
+        connection_module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(connection_module)
+        DatabaseConnection = connection_module.DatabaseConnection
+        
+        # Import models module
+        models_path = os.path.join(current_dir, "models.py")
+        spec = importlib.util.spec_from_file_location("models", models_path)
+        models_module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(models_module)
+        PostalCodeRecord = models_module.PostalCodeRecord
+        PostalSearchInput = models_module.PostalSearchInput
+        ReverseGeocodeInput = models_module.ReverseGeocodeInput
+        row_to_postal_record = models_module.row_to_postal_record
 
 
 class PostalQueries:
