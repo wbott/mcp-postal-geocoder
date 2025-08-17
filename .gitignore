@@ -42,6 +42,7 @@ Thumbs.db
 *.log
 
 # Database
+*.db
 *.db-journal
 
 # Temporary files

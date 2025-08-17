@@ -3,6 +3,7 @@
 import sqlite3
 import os
 import threading
+import requests
 from pathlib import Path
 from typing import Optional
 
@@ -29,6 +30,35 @@ class DatabaseConnection:
         self._connection: Optional[sqlite3.Connection] = None
         self._lock = threading.Lock()
     
+    def _download_database(self, db_path: Path) -> None:
+        """Download the postal code database from Hugging Face."""
+        url = "https://huggingface.co/datasets/bott-wa/us-postal-geocoding-db/resolve/main/postal_census_complete.db"
+        
+        print(f"Downloading postal code database from Hugging Face...")
+        print(f"URL: {url}")
+        print(f"Destination: {db_path}")
+        
+        # Ensure the directory exists
+        db_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        # Download with progress indication
+        response = requests.get(url, stream=True)
+        response.raise_for_status()
+        
+        total_size = int(response.headers.get('content-length', 0))
+        downloaded = 0
+        
+        with open(db_path, 'wb') as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                if chunk:
+                    f.write(chunk)
+                    downloaded += len(chunk)
+                    if total_size > 0:
+                        progress = (downloaded / total_size) * 100
+                        print(f"\rDownload progress: {progress:.1f}%", end='', flush=True)
+        
+        print(f"\nDownload completed: {db_path}")
+
     def _get_database_path(self) -> Path:
         """Get the path to the postal codes database."""
         # Try to find the database relative to this file
@@ -46,10 +76,18 @@ class DatabaseConnection:
         if env_path and Path(env_path).exists():
             return Path(env_path)
         
-        raise FileNotFoundError(
-            f"Postal code database not found at {db_path}. "
-            f"Set POSTAL_DB_PATH environment variable to specify location."
-        )
+        # If database doesn't exist, try to download it
+        print(f"Database not found at {db_path}")
+        try:
+            self._download_database(db_path)
+            return db_path
+        except Exception as e:
+            raise FileNotFoundError(
+                f"Failed to download postal code database from Hugging Face: {e}. "
+                f"You can manually download it from: "
+                f"https://huggingface.co/datasets/bott-wa/us-postal-geocoding-db/resolve/main/postal_census_complete.db "
+                f"and place it at {db_path}, or set POSTAL_DB_PATH environment variable."
+            )
     
     def connect(self) -> sqlite3.Connection:
         """Get or create database connection."""
