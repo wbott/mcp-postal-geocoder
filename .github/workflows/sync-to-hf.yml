@@ -21,12 +21,12 @@ jobs:
         git config --global user.email "action@github.com"
         git config --global user.name "GitHub Action"
         
-        # Clone the HF Space (replace USERNAME/SPACENAME with your actual values)
-        git clone https://huggingface.co/spaces/USERNAME/mcp-postal-geocoder hf-space
+        # Clone the HF Space
+        git clone https://huggingface.co/spaces/bott-wa/mcp-postal-geocoder hf-space
         cd hf-space
         
-        # Configure HF authentication
-        git remote set-url origin https://USERNAME:$HF_TOKEN@huggingface.co/spaces/USERNAME/mcp-postal-geocoder
+        # Configure HF authentication  
+        git remote set-url origin https://bott-wa:$HF_TOKEN@huggingface.co/spaces/bott-wa/mcp-postal-geocoder
         
         # Copy files from the main repo
         cp -r ../streamlit_app.py .
