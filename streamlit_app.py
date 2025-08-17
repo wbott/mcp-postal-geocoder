@@ -403,5 +403,5 @@ st.markdown("""
 - **Database**: 33,791 US postal codes from Census Bureau ZCTA data
 - **Technology**: Model Context Protocol (MCP) server with FastMCP
 - **Performance**: Sub-millisecond exact lookups, <50ms reverse geocoding
-- **Source Code**: [GitHub Repository](https://github.com/example/mcp-postal-geocoder)
+- **Source Code**: [GitHub Repository](https://github.com/wbott/mcp-postal-geocoder)
 """)
